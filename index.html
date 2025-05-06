@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>TRACE - Media Refleksi Siswa</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #3f51b5;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+
+    header p {
+      margin: 0.5rem 0 0;
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+
+    .form-section {
+      background-color: white;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 700px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-section h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #3f51b5;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    button {
+      background-color: #3f51b5;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .student-box {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .student-box:hover {
+      transform: translateY(-4px);
+    }
+
+    .student-box h2 {
+      margin-top: 0;
+      color: #3f51b5;
+    }
+
+    .student-box div {
+      margin-bottom: 0.5rem;
+    }
+
+    .student-box strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TRACE</h1>
+    <p>Think, Reflect, Ask, Clarify, Express</p>
+  </header>
+
+  <section class="form-section">
+    <h2>Isi Refleksi</h2>
+    <form id="traceForm">
+      <input type="text" id="name" placeholder="Nama Siswa" required>
+      <textarea id="think" placeholder="Think..."></textarea>
+      <textarea id="reflect" placeholder="Reflect..."></textarea>
+      <textarea id="ask" placeholder="Ask..."></textarea>
+      <textarea id="clarify" placeholder="Clarify..."></textarea>
+      <textarea id="express" placeholder="Express..."></textarea>
+      <button type="submit">Kirim</button>
+    </form>
+  </section>
+
+  <main class="grid-container" id="outputContainer">
+    <!-- Refleksi siswa akan muncul di sini -->
+  </main>
+
+  <script>
+    // Fungsi untuk menyimpan data ke localStorage
+    function saveDataToLocalStorage(name, think, reflect, ask, clarify, express) {
+      const existingData = JSON.parse(localStorage.getItem('refleksiData')) || [];
+      existingData.push({ name, think, reflect, ask, clarify, express });
+      localStorage.setItem('refleksiData', JSON.stringify(existingData));
+    }
+
+    // Fungsi untuk memuat data dari localStorage
+    function loadDataFromLocalStorage() {
+      const savedData = JSON.parse(localStorage.getItem('refleksiData')) || [];
+      savedData.forEach(data => {
+        const studentBox = document.createElement('section');
+        studentBox.className = 'student-box';
+        studentBox.innerHTML = `
+          <h2>${data.name}</h2>
+          ${data.think ? `<div><strong>Think:</strong> ${data.think}</div>` : ''}
+          ${data.reflect ? `<div><strong>Reflect:</strong> ${data.reflect}</div>` : ''}
+          ${data.ask ? `<div><strong>Ask:</strong> ${data.ask}</div>` : ''}
+          ${data.clarify ? `<div><strong>Clarify:</strong> ${data.clarify}</div>` : ''}
+          ${data.express ? `<div><strong>Express:</strong> ${data.express}</div>` : ''}
+        `;
+        document.getElementById('outputContainer').appendChild(studentBox);
+      });
+    }
+
+    // Menangani submit form
+    document.getElementById('traceForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const think = document.getElementById('think').value;
+      const reflect = document.getElementById('reflect').value;
+      const ask = document.getElementById('ask').value;
+      const clarify = document.getElementById('clarify').value;
+      const express = document.getElementById('express').value;
+
+      // Menyimpan data ke localStorage
+      saveDataToLocalStorage(name, think, reflect, ask, clarify, express);
+
+      // Membuat elemen baru untuk refleksi siswa
+      const studentBox = document.createElement('section');
+      studentBox.className = 'student-box';
+      studentBox.innerHTML = `
+        <h2>${name}</h2>
+        ${think ? `<div><strong>Think:</strong> ${think}</div>` : ''}
+        ${reflect ? `<div><strong>Reflect:</strong> ${reflect}</div>` : ''}
+        ${ask ? `<div><strong>Ask:</strong> ${ask}</div>` : ''}
+        ${clarify ? `<div><strong>Clarify:</strong> ${clarify}</div>` : ''}
+        ${express ? `<div><strong>Express:</strong> ${express}</div>` : ''}
+      `;
+
+      document.getElementById('outputContainer').appendChild(studentBox);
+
+      // Reset form setelah submit
+      document.getElementById('traceForm').reset();
+    });
+
+    // Muat data dari localStorage saat halaman pertama kali dimuat
+    window.onload = loadDataFromLocalStorage;
+  </script>
+
+</body>
+</html>
